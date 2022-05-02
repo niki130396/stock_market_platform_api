@@ -25,3 +25,4 @@ class StatementsMetaData(models.Model):
         default=False,
         help_text="Signals if financial statements for a given symbol have been attempted to be downloaded",
     )
+    latest_statement_date = models.DateField(blank=True, null=True)
