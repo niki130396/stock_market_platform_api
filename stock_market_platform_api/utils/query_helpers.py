@@ -29,7 +29,7 @@ def get_gross_margins_by_sector():
         CTE = get_fields_by_statement_type_cte(
             fields=[
                 "meta.sector",
-                "local_type.statement_type_local_name",
+                "normalized.statement_type",
                 "fact.fiscal_period",
                 "normalized.name",
                 "fact.value",
