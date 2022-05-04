@@ -40,6 +40,8 @@ services:
     - "5432:5432"
     restart: always
     hostname: postgres_api
+    networks:
+      - stock_market_platform_crawling_airflow-network
 
   docs:
     image: stock_market_platform_api_local_docs
@@ -63,3 +65,7 @@ services:
     ports:
     - "6379:6379"
     restart: always
+
+networks:
+  stock_market_platform_crawling_airflow-network:
+    external: true
