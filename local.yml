@@ -24,6 +24,8 @@ services:
     links:
       - "redis:redis"
     command: /start
+    networks:
+      - stock_market_platform_crawling_airflow-network
 
   postgres:
     build:
@@ -58,6 +60,8 @@ services:
     ports:
       - "7000:7000"
     command: /start-docs
+    networks:
+      - stock_market_platform_crawling_airflow-network
 
   redis:
     image: redis:5.0
@@ -65,6 +69,8 @@ services:
     ports:
     - "6379:6379"
     restart: always
+    networks:
+      - stock_market_platform_crawling_airflow-network
 
 networks:
   stock_market_platform_crawling_airflow-network:
