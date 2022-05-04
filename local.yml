@@ -39,6 +39,7 @@ services:
     ports:
     - "5432:5432"
     restart: always
+    hostname: postgres_api
 
   docs:
     image: stock_market_platform_api_local_docs
