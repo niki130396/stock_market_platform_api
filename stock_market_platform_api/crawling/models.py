@@ -68,7 +68,6 @@ class FinancialStatementFact(models.Model):
     financial_statement_line = models.ForeignKey(
         FinancialStatementLine, on_delete=models.PROTECT
     )
-    fiscal_year = models.PositiveIntegerField(null=True, blank=True)
-    fiscal_period = models.CharField(max_length=30, null=True, blank=True)
+    fiscal_period = models.DateField(null=True, blank=True)
     unit = models.CharField(max_length=30, null=True, blank=True)
     value = models.IntegerField()
