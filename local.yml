@@ -1,10 +1,8 @@
 version: '3'
 
 volumes:
-  stock_market_local_postgres_data:
-    external: true
-  stock_market_local_postgres_data_backups:
-    external: true
+  local_postgres_api_data: {}
+  local_postgres_api_data_backups: {}
 
 
 services:
@@ -32,10 +30,10 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: stock_market_platform_api_production_postgres
-    container_name: postgres
+    container_name: postgres_api
     volumes:
-      - stock_market_local_postgres_data:/var/lib/postgresql/data:Z
-      - stock_market_local_postgres_data_backups:/backups:z
+      - local_postgres_api_data:/var/lib/postgresql/data:Z
+      - local_postgres_api_data_backups:/backups:z
     env_file:
       - ./.envs/.local/.postgres
     ports:
@@ -60,7 +58,7 @@ services:
 
   redis:
     image: redis:5.0
-    container_name: redis
+    container_name: redis_api
     ports:
     - "6380:6379"
     restart: always
