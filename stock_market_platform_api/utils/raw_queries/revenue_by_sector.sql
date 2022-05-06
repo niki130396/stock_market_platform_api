@@ -13,6 +13,6 @@ FROM (
         END AS fiscal_period,
         value
     FROM income_statements
-    WHERE field_name = 'total_revenue') AS buckets
+    WHERE name = 'total_revenue') AS buckets
 GROUP BY sector, fiscal_period
 ORDER BY sector, fiscal_period;
