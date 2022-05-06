@@ -66,7 +66,7 @@ def get_revenue_by_sector():
     with connection.cursor() as cursor:
         CTE = get_fields_by_statement_type_cte(
             fields=[
-                "meta.symbol",
+                "meta.sector",
                 "fact.fiscal_period",
                 "normalized.name",
                 "fact.value",
