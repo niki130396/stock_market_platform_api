@@ -60,3 +60,21 @@ def get_gross_margins_by_company():
         cursor.execute(SQL)
         response = list(cursor.fetchall())
     return response
+
+
+def get_revenue_by_sector():
+    with connection.cursor() as cursor:
+        CTE = get_fields_by_statement_type_cte(
+            fields=[
+                "meta.symbol",
+                "fact.fiscal_period",
+                "normalized.name",
+                "fact.value",
+            ],
+            statement_type="income_statement",
+        )
+        SELECT = get_from_sql("raw_queries/revenue_by_sector.sql")
+        SQL = CTE + "\n" + SELECT
+        cursor.execute(SQL)
+        response = list(cursor.fetchall())
+    return response

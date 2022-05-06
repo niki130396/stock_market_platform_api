@@ -5,10 +5,21 @@ from rest_framework.viewsets import ViewSet
 from stock_market_platform_api.utils.query_helpers import (
     get_gross_margins_by_company,
     get_gross_margins_by_sector,
+    get_revenue_by_sector,
 )
 
 
 class BalanceSheetMetricsViewSet(ViewSet):
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="revenue-by-sector",
+        url_name="revenue_by_sector"
+    )
+    def get_revenue_by_sector(self, request):
+        response = get_revenue_by_sector()
+        return Response(response)
+
     @action(
         detail=False,
         methods=["GET"],
