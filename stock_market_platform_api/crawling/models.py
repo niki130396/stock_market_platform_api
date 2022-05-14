@@ -25,9 +25,6 @@ class NormalizedFieldTree(MPTTModel):
     def __str__(self):
         return f"{self.humanized_name} - {self.statement_type}"
 
-    class Meta:
-        unique_together = ("name", "statement_type")
-
 
 class CrawlingSourceDetails(models.Model):
     SOURCE_TYPE_CHOICES = [("API", "API"), ("HTML", "HTML")]
@@ -71,3 +68,33 @@ class FinancialStatementFact(models.Model):
     fiscal_period = models.DateField(null=True, blank=True)
     unit = models.CharField(max_length=30, null=True, blank=True)
     value = models.IntegerField()
+
+
+class AbstractFinancialStatementModel(models.Model):
+    company_name = models.CharField(max_length=100)
+    industry = models.CharField(max_length=50, null=True, blank=True)
+    sector = models.CharField(max_length=50, null=True, blank=True)
+    fiscal_period = models.DateField()
+    field_name = models.CharField(max_length=100)
+    value = models.IntegerField()
+
+    class Meta:
+        abstract = True
+
+
+class IncomeStatementFieldsMaterializedView(AbstractFinancialStatementModel):
+    class Meta:
+        managed = False
+        db_table = "income_statement_fields"
+
+
+class BalanceSheetFieldsMaterializedView(AbstractFinancialStatementModel):
+    class Meta:
+        managed = False
+        db_table = "balance_sheet_fields"
+
+
+class CashFlowFieldsMaterializedView(AbstractFinancialStatementModel):
+    class Meta:
+        managed = False
+        db_table = "cash_flow_fields"

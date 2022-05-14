@@ -4,6 +4,7 @@ from rest_framework.viewsets import ViewSet
 from django.db.models import F, Sum, FilteredRelation, Subquery, OuterRef, IntegerField, Max
 from stock_market_platform_api.crawling.models import (
     FinancialStatementFact,
+    IncomeStatementFieldsMaterializedView,
 )
 from stock_market_platform_api.financial_statements.api.serializers import (
     RevenueByCompanySerializer,
@@ -26,9 +27,7 @@ class RevenueViewSet(ViewSet):
         url_name="revenue_by_sector"
     )
     def get_revenue_by_sector(self, request):
-        income_statement_fields = FinancialStatementFact.objects.filter(
-            financial_statement_line__normalized_field__statement_type="income_statement"
-        ).values(
+        income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(
             "fiscal_period",
             "value",
             sector=F("company__sector"),
@@ -48,17 +47,7 @@ class RevenueViewSet(ViewSet):
         url_name="revenue_by_company"
     )
     def get_revenue_by_company(self, request):
-        income_statement_fields = FinancialStatementFact.objects.filter(
-            financial_statement_line__normalized_field__statement_type="income_statement"
-        ).values(
-            "fiscal_period",
-            "value",
-            sector=F("company__sector"),
-            industry=F("company__industry"),
-            company_name=F("company__name"),
-            field_name=F("financial_statement_line__normalized_field__name")
-        )
-        revenue_fields = income_statement_fields.filter(field_name="total_revenue")
+        revenue_fields = IncomeStatementFieldsMaterializedView.objects.filter(field_name="total_revenue")
         grouped = revenue_fields.values(
             "company_name", "sector", "industry", "fiscal_period"
         ).annotate(total_revenue=Sum("value")).order_by("company_name", "fiscal_period")
@@ -99,7 +88,6 @@ class ReturnOnInvestedCapitalViewSet(ViewSet):
         )
         nopat_serializer = NOPATSerializer(joined, many=True)
         return Response(nopat_serializer.data)
-
 
 
 class BalanceSheetMetricsViewSet(ViewSet):
