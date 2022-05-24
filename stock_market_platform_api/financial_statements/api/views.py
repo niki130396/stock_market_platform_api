@@ -1,7 +1,7 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Q
 from stock_market_platform_api.crawling.models import (
     IncomeStatementFieldsMaterializedView,
 )
@@ -31,7 +31,7 @@ class RevenueViewSet(ViewSet):
         ]
         income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values)\
             .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")\
-            .filter(total_revenue__isnull=False)
+            .filter(~Q(sector=""), total_revenue__isnull=False)
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 
