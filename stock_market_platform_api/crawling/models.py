@@ -69,6 +69,9 @@ class FinancialStatementFact(models.Model):
     unit = models.CharField(max_length=30, null=True, blank=True)
     value = models.IntegerField()
 
+    class Meta:
+        unique_together = ('company', 'financial_statement_line', 'fiscal_period')
+
 
 class AbstractFinancialStatementModel(models.Model):
     company_name = models.CharField(max_length=100)
