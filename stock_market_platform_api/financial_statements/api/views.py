@@ -29,9 +29,9 @@ class RevenueViewSet(ViewSet):
             "fiscal_period",
             *granularity
         ]
-        income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values)\
-            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")\
-            .filter(~Q(sector=""), total_revenue__isnull=False)
+        income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values) \
+            .filter(~Q(sector=""), ~Q(industry=""), total_revenue__isnull=False)\
+            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 
