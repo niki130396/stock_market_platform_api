@@ -10,7 +10,7 @@ from stock_market_platform_api.financial_statements.api.serializers import (
     RevenueBySectorSerializer,
     NOPATSerializer,
 )
-from stock_market_platform_api.utils.common import determine_statement_granularity
+from stock_market_platform_api.utils.common import get_statement_granularity
 
 
 class RevenueViewSet(ViewSet):
@@ -24,13 +24,14 @@ class RevenueViewSet(ViewSet):
         aggregate_by = request.query_params.get("granularity")
         if not aggregate_by:
             raise ValueError("Choose a granularity")
-        granularity = determine_statement_granularity(aggregate_by)
+        granularity = get_statement_granularity(aggregate_by)
         field_values = [
             "fiscal_period",
             *granularity
         ]
         income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values)\
-            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")
+            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")\
+            .filter(total_revenue__isnull=False)
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 

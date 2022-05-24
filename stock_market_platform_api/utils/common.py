@@ -1,6 +1,6 @@
 
 
-def determine_statement_granularity(granularity):
+def get_statement_granularity(granularity):
     granularity_levels = {
             "sector": ["sector"],
             "industry": ["sector", "industry"],
