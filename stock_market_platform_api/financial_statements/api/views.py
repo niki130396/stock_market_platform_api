@@ -34,7 +34,7 @@ class RevenueViewSet(ViewSet):
         ]
         income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values) \
             .filter(~Q(sector=""), ~Q(industry=""), total_revenue__isnull=False)\
-            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")
+            .annotate(total_revenue=Sum("total_revenue")).order_by("sector", "industry", "fiscal_period")
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 
