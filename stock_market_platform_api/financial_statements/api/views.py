@@ -8,7 +8,6 @@ from stock_market_platform_api.crawling.models import (
     IncomeStatementFieldsMaterializedView,
 )
 from stock_market_platform_api.financial_statements.api.serializers import (
-    RevenueByCompanySerializer,
     RevenueBySectorSerializer,
     NOPATSerializer,
 )
@@ -37,21 +36,6 @@ class RevenueViewSet(ViewSet):
             .annotate(total_revenue=Sum("total_revenue"))\
             .order_by(*field_values)
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
-        return Response(serializer.data)
-
-    @action(
-        detail=False,
-        methods=["Get"],
-        url_path="revenue-by-company",
-        url_name="revenue_by_company"
-    )
-    def get_revenue(self, request):
-        revenue_fields = IncomeStatementFieldsMaterializedView.objects.filter(field_name="total_revenue")
-        grouped = revenue_fields.values(
-            "company_name", "sector", "industry", "fiscal_period"
-        ).annotate(total_revenue=Sum("value")).order_by("company_name", "fiscal_period")
-
-        serializer = RevenueByCompanySerializer(grouped, many=True)
         return Response(serializer.data)
 
 
