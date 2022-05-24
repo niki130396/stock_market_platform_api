@@ -78,3 +78,11 @@ def get_revenue_by_sector():
         cursor.execute(SQL)
         response = list(cursor.fetchall())
     return response
+
+
+def get_nopat_by_company():
+    with connection.cursor() as cursor:
+        sql = get_from_sql("raw_queries/select_nopat.sql")
+        cursor.execute(sql)
+        response = list(cursor.fetchall())
+    return response

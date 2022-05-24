@@ -78,26 +78,78 @@ class AbstractFinancialStatementModel(models.Model):
     industry = models.CharField(max_length=50, null=True, blank=True)
     sector = models.CharField(max_length=50, null=True, blank=True)
     fiscal_period = models.DateField()
-    field_name = models.CharField(max_length=100)
-    value = models.IntegerField()
 
     class Meta:
         abstract = True
 
 
 class IncomeStatementFieldsMaterializedView(AbstractFinancialStatementModel):
+    total_revenue = models.IntegerField(null=True, blank=True)
+    cost_of_revenue = models.IntegerField(null=True, blank=True)
+    gross_profit = models.IntegerField(null=True, blank=True)
+    selling_general_and_administrative = models.IntegerField(null=True, blank=True)
+    research_and_development = models.IntegerField(null=True, blank=True)
+    operating_expense = models.IntegerField(null=True, blank=True)
+    net_non_operating_interest_income_expense = models.IntegerField(null=True, blank=True)
+    operating_income = models.IntegerField(null=True, blank=True)
+    pretax_income = models.IntegerField(null=True, blank=True)
+    tax_provision = models.IntegerField(null=True, blank=True)
+    net_income = models.IntegerField(null=True, blank=True)
+
     class Meta:
         managed = False
         db_table = "income_statement_fields"
 
 
 class BalanceSheetFieldsMaterializedView(AbstractFinancialStatementModel):
+    cash_and_cash_equivalents = models.IntegerField(null=True, blank=True)
+    other_short_term_investments = models.IntegerField(null=True, blank=True)
+    cash_cash_equivalents_and_short_term_investments = models.IntegerField(null=True, blank=True)
+    receivables = models.IntegerField(null=True, blank=True)
+    inventory = models.IntegerField(null=True, blank=True)
+    other_current_assets = models.IntegerField(null=True, blank=True)
+    current_assets = models.IntegerField(null=True, blank=True)
+    net_ppe = models.IntegerField(null=True, blank=True)
+    investments_and_advances = models.IntegerField(null=True, blank=True)
+    other_non_current_assets = models.IntegerField(null=True, blank=True)
+    total_non_current_assets = models.IntegerField(null=True, blank=True)
+    total_assets = models.IntegerField(null=True, blank=True)
+    accounts_payable = models.IntegerField(null=True, blank=True)
+    current_deferred_liabilities = models.IntegerField(null=True, blank=True)
+    current_debt = models.IntegerField(null=True, blank=True)
+    other_current_liabilities = models.IntegerField(null=True, blank=True)
+    current_liabilities = models.IntegerField(null=True, blank=True)
+    long_term_debt = models.IntegerField(null=True, blank=True)
+    other_non_current_liabilities = models.IntegerField(null=True, blank=True)
+    total_non_current_liabilities_net_minority_interest = models.IntegerField(null=True, blank=True)
+    total_liabilities_net_minority_interest = models.IntegerField(null=True, blank=True)
+    total_debt = models.IntegerField(null=True, blank=True)
+    common_stock = models.IntegerField(null=True, blank=True)
+    retained_earnings = models.IntegerField(null=True, blank=True)
+    stockholders_equity = models.IntegerField(null=True, blank=True)
+    total_equity_gross_minority_interest = models.IntegerField(null=True, blank=True)
+    working_capital = models.IntegerField(null=True, blank=True)
+
     class Meta:
         managed = False
         db_table = "balance_sheet_fields"
 
 
 class CashFlowFieldsMaterializedView(AbstractFinancialStatementModel):
+    depreciation_and_amortization = models.IntegerField(null=True, blank=True)
+    operating_cash_flow = models.IntegerField(null=True, blank=True)
+    net_ppe_purchase_and_sale = models.IntegerField(null=True, blank=True)
+    net_investment_purchase_and_sale = models.IntegerField(null=True, blank=True)
+    net_other_investing_changes = models.IntegerField(null=True, blank=True)
+    investing_cash_flow = models.IntegerField(null=True, blank=True)
+    cash_dividends_paid = models.IntegerField(null=True, blank=True)
+    net_common_stock_issuance = models.IntegerField(null=True, blank=True)
+    net_issuance_payments_of_debt = models.IntegerField(null=True, blank=True)
+    net_other_financing_charges = models.IntegerField(null=True, blank=True)
+    financing_cash_flow = models.IntegerField(null=True, blank=True)
+    end_cash_position = models.IntegerField(null=True, blank=True)
+    free_cash_flow = models.IntegerField(null=True, blank=True)
+    
     class Meta:
         managed = False
         db_table = "cash_flow_fields"

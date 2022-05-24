@@ -10,7 +10,9 @@ class StatementsMetaDataSerializer(serializers.ModelSerializer):
 
 
 class RevenueBySectorSerializer(serializers.Serializer):
-    sector = serializers.CharField(max_length=50)
+    industry = serializers.CharField(max_length=50, required=False)
+    sector = serializers.CharField(max_length=50, required=False)
+    company_name = serializers.CharField(max_length=100, required=False)
     fiscal_period = serializers.DateField()
     total_revenue = serializers.IntegerField()
 
@@ -27,5 +29,4 @@ class NOPATSerializer(serializers.Serializer):
     fiscal_period = serializers.DateField()
     sector = serializers.CharField(max_length=50)
     company_name = serializers.CharField(max_length=50)
-    operating_income = serializers.IntegerField()
-    tax_provision = serializers.IntegerField()
+    nopat = serializers.IntegerField()

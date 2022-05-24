@@ -1,9 +1,8 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
-from django.db.models import F, Sum, FilteredRelation, Subquery, OuterRef, IntegerField, Max
+from django.db.models import F, Sum
 from stock_market_platform_api.crawling.models import (
-    FinancialStatementFact,
     IncomeStatementFieldsMaterializedView,
 )
 from stock_market_platform_api.financial_statements.api.serializers import (
@@ -11,12 +10,7 @@ from stock_market_platform_api.financial_statements.api.serializers import (
     RevenueBySectorSerializer,
     NOPATSerializer,
 )
-
-from stock_market_platform_api.utils.query_helpers import (
-    get_gross_margins_by_company,
-    get_gross_margins_by_sector,
-    get_revenue_by_sector,
-)
+from stock_market_platform_api.utils.common import determine_statement_granularity
 
 
 class RevenueViewSet(ViewSet):
@@ -27,17 +21,17 @@ class RevenueViewSet(ViewSet):
         url_name="revenue_by_sector"
     )
     def get_revenue_by_sector(self, request):
-        income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(
+        aggregate_by = request.query_params.get("granularity")
+        if not aggregate_by:
+            raise ValueError("Choose a granularity")
+        granularity = determine_statement_granularity(aggregate_by)
+        field_values = [
             "fiscal_period",
-            "value",
-            sector=F("company__sector"),
-            field_name=F("financial_statement_line__normalized_field__name")
-        )
-        revenue_fields = income_statement_fields.filter(field_name="total_revenue")
-        grouped = revenue_fields.values(
-            "sector", "fiscal_period"
-        ).annotate(total_revenue=Sum("value")).order_by("fiscal_period")
-        serializer = RevenueBySectorSerializer(grouped, many=True)
+            *granularity
+        ]
+        income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values)\
+            .annotate(total_revenue=Sum("total_revenue")).order_by("industry", "sector", "fiscal_period")
+        serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 
     @action(
@@ -46,7 +40,7 @@ class RevenueViewSet(ViewSet):
         url_path="revenue-by-company",
         url_name="revenue_by_company"
     )
-    def get_revenue_by_company(self, request):
+    def get_revenue(self, request):
         revenue_fields = IncomeStatementFieldsMaterializedView.objects.filter(field_name="total_revenue")
         grouped = revenue_fields.values(
             "company_name", "sector", "industry", "fiscal_period"
@@ -64,59 +58,41 @@ class ReturnOnInvestedCapitalViewSet(ViewSet):
         url_name="roic_by_sector"
     )
     def get_return_on_invested_capital_by_sector(self, request):
-        income_statement_fields = FinancialStatementFact.objects.filter(
-            financial_statement_line__normalized_field__statement_type="income_statement"
-        ).values(
+        # income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(
+        #     "fiscal_period",
+        #     "sector",
+        #     "company_name",
+        #     "field_name"
+        # )
+        # joined = income_statement_fields.annotate(
+        #     operating_income_value=Subquery(
+        #         income_statement_fields.filter(
+        #             field_name="operating_income",
+        #             company_name=OuterRef("company_name"),
+        #             fiscal_period=OuterRef("fiscal_period")
+        #         ).values("value"),
+        #         output_field=IntegerField()
+        #     ),
+        #     tax_provision_value=Subquery(
+        #         income_statement_fields.filter(
+        #             field_name="tax_provision",
+        #             company_name=OuterRef("company_name"),
+        #             fiscal_period=OuterRef("fiscal_period")
+        #         ).values("value")
+        #     )
+        # )\
+        # .values("fiscal_period", "sector", "company_name")\
+        # .annotate(
+        #     nopat=(Max("operating_income_value") - Max("tax_provision_value"))
+        # ).order_by("company_name", "fiscal_period")
+
+        nopat = IncomeStatementFieldsMaterializedView.objects.all().values(
             "fiscal_period",
-            sector=F("company__sector"),
-            company_name=F("company__name"),
-            field_name=F("financial_statement_line__normalized_field__name")
+            "sector",
+            "company_name",
+        ).annotate(
+            nopat=(F("operating_income") - F("tax_provision"))
         )
-        joined = income_statement_fields.annotate(
-            operating_income=Subquery(
-                income_statement_fields.filter(
-                    field_name="operating_income",
-                    company_name=OuterRef("company_name"),
-                    fiscal_period=OuterRef("fiscal_period")
-                ).values("value"),
-                output_field=IntegerField()
-            )
-        )\
-        .values("fiscal_period", "sector", "company_name")\
-        .annotate(
-            operating_income_value=Max("operating_income")
-        )
-        nopat_serializer = NOPATSerializer(joined, many=True)
+
+        nopat_serializer = NOPATSerializer(nopat, many=True)
         return Response(nopat_serializer.data)
-
-
-class BalanceSheetMetricsViewSet(ViewSet):
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="revenue-by-sector",
-        url_name="revenue_by_sector"
-    )
-    def get_revenue_by_sector(self, request):
-        response = get_revenue_by_sector()
-        return Response(response)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="gross-margin-company-wise",
-        url_name="gross_margin_company_wise",
-    )
-    def get_gross_margin_by_company(self, request):
-        gross_margins = get_gross_margins_by_company()
-        return Response(gross_margins)
-
-    @action(
-        detail=False,
-        methods=["GET"],
-        url_path="gross-margin-sector-wise",
-        url_name="gross_margin_sector_wise",
-    )
-    def get_gross_margin_by_sector(self, request):
-        response = get_gross_margins_by_sector()
-        return Response(response)
