@@ -29,12 +29,13 @@ class RevenueViewSet(ViewSet):
             raise ValueError("Choose a granularity")
         granularity = get_statement_granularity(aggregate_by)
         field_values = [
+            *granularity,
             "fiscal_period",
-            *granularity
         ]
         income_statement_fields = IncomeStatementFieldsMaterializedView.objects.all().values(*field_values) \
             .filter(~Q(sector=""), ~Q(industry=""), total_revenue__isnull=False)\
-            .annotate(total_revenue=Sum("total_revenue")).order_by("sector", "industry", "fiscal_period")
+            .annotate(total_revenue=Sum("total_revenue"))\
+            .order_by(*field_values)
         serializer = RevenueBySectorSerializer(income_statement_fields, many=True)
         return Response(serializer.data)
 
