@@ -2,6 +2,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from django.db.models import F, Sum, Q
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from stock_market_platform_api.crawling.models import (
     IncomeStatementFieldsMaterializedView,
 )
@@ -20,6 +22,7 @@ class RevenueViewSet(ViewSet):
         url_path="revenue-by-sector",
         url_name="revenue_by_sector"
     )
+    @method_decorator(cache_page(60 * 60))
     def get_revenue_by_sector(self, request):
         aggregate_by = request.query_params.get("granularity")
         if not aggregate_by:
