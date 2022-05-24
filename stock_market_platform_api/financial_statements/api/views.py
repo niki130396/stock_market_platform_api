@@ -22,7 +22,7 @@ class RevenueViewSet(ViewSet):
         url_path="revenue-by-sector",
         url_name="revenue_by_sector"
     )
-    # @method_decorator(cache_page(60 * 60))
+    @method_decorator(cache_page(60 * 60))
     def get_revenue_by_sector(self, request):
         aggregate_by = request.query_params.get("granularity")
         if not aggregate_by:
